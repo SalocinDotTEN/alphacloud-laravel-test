@@ -13,7 +13,7 @@ class BidController extends Controller
 {
     public function create(Request $request)
     {
-        $groupError = [];
+        // $groupError = '';
 
         // Validate input
         $validator = Validator::make($request->all(), [
@@ -22,14 +22,18 @@ class BidController extends Controller
         ], [
             'user_id.required' => 'The user ID field is required.',
             'user_id.exists' => 'The selected user ID is invalid.',
-            'price.required' => 'The bid price is required.',
-            'price.numeric' => 'The bid price must be a number.',
-            'price.regex' => 'The bid price must have up to 2 decimal places.'
+            'price.required' => 'The bid price is required!',
+            'price.numeric' => 'The price format is invalid.',
+            'price.regex' => 'The price format is invalid.'
         ]);
 
         if ($validator->fails()) {
-            $groupError['message'] = array_merge($groupError, $validator->errors()->all());
-            // return response()->json(['error' => $validator->errors()], 422);
+            return response()->json([
+                // 'message' => '....',
+                'errors' => [
+                    'price' => $validator->errors()->first()
+                ]
+            ], 422);
         }
 
         $user_id = $request->input('user_id');
@@ -38,17 +42,22 @@ class BidController extends Controller
         // Check if price is the highest
         $highestBid = Bid::max('price');
         if ($highestBid !== null && $price <= $highestBid) {
-            $groupError['errors']['price'] = 'The bid price cannot be lower than ' . $highestBid;
-            // return response()->json([
-            //     'error' => 'The bid price cannot be lower than ' . $highestBid
-            // ], 422);
-        }
-
-        if (count($groupError) > 0) {
             return response()->json([
-                $groupError
+                // 'message' => '....',
+                'errors' => [
+                    'price' => 'The bid price cannot lower than ' . $highestBid
+                ]
             ], 422);
         }
+
+        // if (!empty($groupError)) {
+        //     return response()->json([
+        //         'message' => '....',
+        //         'errors' => [
+        //             'price' => $groupError
+        //         ]
+        //     ], 422);
+        // }
 
         // Insert the bid
         $bid = new Bid();
@@ -64,11 +73,11 @@ class BidController extends Controller
         $fullName = $user->first_name . ' ' . $user->last_name;
 
         // Round price to 2 decimal.
-        $formatPrice = number_format($price, 2);
+        $formatPrice = number_format($price, 2, '.', '');
 
         return response()->json([
             'message' => 'Success',
-            'bid' => [
+            'data' => [
                 'full_name' => $fullName,
                 'price' => $formatPrice
             ]
