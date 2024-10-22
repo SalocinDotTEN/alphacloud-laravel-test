@@ -33,43 +33,17 @@ class BidController extends Controller
         $highestBid = Bid::max('price');
         $validator->after(function ($validator) use ($price, $highestBid) {
             if ($highestBid !== null && $price <= $highestBid) {
-                $validator->errors()->add('price', 'The bid price cannot lower than ' . $highestBid);
+                $validator->errors()->add('price', 'The bid price cannot lower than ' . $highestBid + 1);
             }
         });
 
         $validator->validate();
 
-        // if ($validator->fails()) {
-        //     return response()->json([
-        //         // 'message' => '....',
-        //         'errors' => [
-        //             'price' => $validator->errors()->first()
-        //         ]
-        //     ], 422);
-        // }
-
-
-        // Check if price is the highest
-        // $validator->after(function ($validator) use ($price, $highestBid) {
-        //     if ($highestBid !== null && $price <= $highestBid) {
-        //     $validator->errors()->add('price', 'The bid price cannot be lower than ' . $highestBid);
-        //     }
-        // });
-
         if ($validator->fails()) {
             return response()->json([
-            'errors' => $validator->errors()
+                'errors' => $validator->errors()
             ], 422);
         }
-
-        // if (!empty($groupError)) {
-        //     return response()->json([
-        //         'message' => '....',
-        //         'errors' => [
-        //             'price' => $groupError
-        //         ]
-        //     ], 422);
-        // }
 
         // Insert the bid
         $bid = new Bid();
