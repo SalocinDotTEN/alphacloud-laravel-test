@@ -27,26 +27,38 @@ class BidController extends Controller
             'price.regex' => 'The price format is invalid.'
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                // 'message' => '....',
-                'errors' => [
-                    'price' => $validator->errors()->first()
-                ]
-            ], 422);
-        }
-
         $user_id = $request->input('user_id');
         $price = $request->input('price');
 
-        // Check if price is the highest
         $highestBid = Bid::max('price');
-        if ($highestBid !== null && $price <= $highestBid) {
+        $validator->after(function ($validator) use ($price, $highestBid) {
+            if ($highestBid !== null && $price <= $highestBid) {
+                $validator->errors()->add('price', 'The bid price cannot lower than ' . $highestBid);
+            }
+        });
+
+        $validator->validate();
+
+        // if ($validator->fails()) {
+        //     return response()->json([
+        //         // 'message' => '....',
+        //         'errors' => [
+        //             'price' => $validator->errors()->first()
+        //         ]
+        //     ], 422);
+        // }
+
+
+        // Check if price is the highest
+        // $validator->after(function ($validator) use ($price, $highestBid) {
+        //     if ($highestBid !== null && $price <= $highestBid) {
+        //     $validator->errors()->add('price', 'The bid price cannot be lower than ' . $highestBid);
+        //     }
+        // });
+
+        if ($validator->fails()) {
             return response()->json([
-                // 'message' => '....',
-                'errors' => [
-                    'price' => 'The bid price cannot lower than ' . $highestBid
-                ]
+            'errors' => $validator->errors()
             ], 422);
         }
 
