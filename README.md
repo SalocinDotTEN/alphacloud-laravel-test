@@ -1,6 +1,13 @@
 This is the updated code for the assessment.
+
 The testing is a bit hard because there was a grammatical error in one of the test validation.
-Tried chunking and batch insert to speed up the notification table insert.
+
+Attempted to use the Request class for validation but it was not working as expected. I had to use the Validator class instead.
+
+Tried chunking and batch insert to speed up the notification table insert. Probably thread management is needed but I am not too familiar with using it on Laravel.
+
+### Test Result screenshot...
+![Test Result](./TestResultScreenshot.png)
 
 Original readme follows...
 ---
