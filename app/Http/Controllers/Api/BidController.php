@@ -14,6 +14,8 @@ class BidController extends Controller
     public function create(Request $request)
     {
         // $groupError = '';
+        $user_id = $request->input('user_id');
+        $price = $request->input('price');
 
         // Validate input
         $validator = Validator::make($request->all(), [
@@ -27,8 +29,6 @@ class BidController extends Controller
             'price.regex' => 'The price format is invalid.'
         ]);
 
-        $user_id = $request->input('user_id');
-        $price = $request->input('price');
 
         $highestBid = Bid::max('price');
         $validator->after(function ($validator) use ($price, $highestBid) {
